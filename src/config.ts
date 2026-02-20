@@ -2,4 +2,4 @@ type APIConfig = {
   fileserverHits: number;
 };
 
-export let serverHits: APIConfig = { fileserverHits: 0 };
+export let config: APIConfig = { fileserverHits: 0 };
