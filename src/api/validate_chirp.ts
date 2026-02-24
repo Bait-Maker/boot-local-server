@@ -6,6 +6,8 @@ export async function handlerValidateChirp(req: Request, res: Response) {
     body: string;
   };
 
+  const badWords = ["kerfuffle", "sharbert", "fornax"];
+
   const params: ChirpMessage = req.body;
 
   const maxChirpLength = 140;
@@ -15,27 +17,13 @@ export async function handlerValidateChirp(req: Request, res: Response) {
   }
 
   // # Check if body contains a profane
-  const cleanedBody = censorProfanes(params.body);
+  let splitBody = params.body.split(" ");
+  for (let i = 0; i < splitBody.length; i++) {
+    if (badWords.includes(splitBody[i].toLocaleLowerCase())) {
+      splitBody[i] = "****";
+    }
+  }
+  const cleanedBody = splitBody.join(" ");
 
   respondWithJSON(res, 200, { cleanedBody: cleanedBody });
-}
-
-function censorProfanes(body: string) {
-  const profanes = {
-    kerfuffle: "kerfuffle",
-    sharbert: "sharbert",
-    fornax: "fornax",
-  };
-
-  const words = body.toLocaleLowerCase().split(" ");
-  const wordsNotLowerCase = body.split(" ");
-
-  for (let profane in profanes) {
-    const wordIndex = words.findIndex((word) => word === profane);
-    wordsNotLowerCase[wordIndex] = "****";
-  }
-
-  const cleanedBody = wordsNotLowerCase.join(" ");
-
-  return cleanedBody;
 }
