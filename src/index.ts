@@ -7,13 +7,13 @@ import {
 } from "./api/middleware.js";
 import { handlerResetHits } from "./api/reset.js";
 import { handlerMetrics } from "./api/metrics.js";
-import { handlerValidateChirp } from "./api/validate_chirp.js";
 
 import postgres from "postgres";
 import { migrate } from "drizzle-orm/postgres-js/migrator";
 import { drizzle } from "drizzle-orm/postgres-js";
 import { config } from "./config.js";
 import { handlerAddUser } from "./api/users.js";
+import { handlerCreateChirp } from "./api/chrips.js";
 
 const migrationClient = postgres(config.db.url, { max: 1 });
 await migrate(drizzle(migrationClient), config.db.migrationConfig);
@@ -45,9 +45,9 @@ app.post("/admin/reset", async (req, res, next) => {
     return next(err);
   }
 });
-app.post("/api/validate_chirp", async (req, res, next) => {
+app.post("/api/chirps", async (req, res, next) => {
   try {
-    await handlerValidateChirp(req, res);
+    await handlerCreateChirp(req, res);
   } catch (err) {
     return next(err);
   }

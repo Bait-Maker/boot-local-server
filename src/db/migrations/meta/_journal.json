@@ -8,6 +8,20 @@
       "when": 1771963995849,
       "tag": "0000_jittery_sister_grimm",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1772038789728,
+      "tag": "0001_spotty_moonstone",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1772046267341,
+      "tag": "0002_cloudy_zarek",
+      "breakpoints": true
     }
   ]
 }
