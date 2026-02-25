@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { createChirp } from "../db/queries/chirps.js";
+import { createChirp, getChirps } from "../db/queries/chirps.js";
 import { BadRequestError, NotFoundError } from "./customErrors.js";
 import { respondWithJSON } from "./json.js";
 
@@ -53,4 +53,13 @@ function getCleanedBody(body: string, badWords: string[]) {
   const cleanedBody = words.join(" ");
 
   return cleanedBody;
+}
+
+export async function handlerGetChirps(_: Request, res: Response) {
+  const chirps = await getChirps();
+
+  if (!chirps) {
+    throw new BadRequestError("Unable to fetch chirps");
+  }
+  respondWithJSON(res, 200, chirps);
 }
