@@ -1,16 +1,30 @@
 import { Request, Response } from "express";
-import { createUser } from "src/db/queries/users";
-import { BadRequestError } from "./customErrors";
-import { newUser } from "src/db/schema";
+import { BadRequestError, NotFoundError } from "./customErrors.js";
+import { newUser } from "../db/schema.js";
+import { respondWithJSON } from "./json.js";
+import { createUser } from "../db/queries/users.js";
 
 export async function handlerAddUser(req: Request, res: Response) {
-  const params: newUser = req.body;
-
-  if (params.email.length <= 0 || params.email.length > 256) {
-    throw new BadRequestError(
-      "email cannot be empty or longer than 256 characters",
-    );
+  type parameters = {
+    email: string;
   }
 
-  const user = await createUser(params);
+  const params: parameters = req.body
+
+  if (!params.email) {
+    throw new BadRequestError("missing required fields");
+  }
+
+  const user = await createUser({email: params.email});
+
+  if (!user) {
+    throw new NotFoundError(`Failed to create user ${params.email}`);
+  }
+
+  respondWithJSON(res, 201, {
+    id: user.id,
+    email: user.email,
+    createdAt: user.createdAt,
+    updatedAt: user.updatedAt,
+  });
 }

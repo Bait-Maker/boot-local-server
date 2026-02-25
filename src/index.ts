@@ -5,7 +5,8 @@ import {
   middleWareLogResponses,
   middlewareMetricsInc,
 } from "./api/middleware.js";
-import { handlerResetHits, handlerMetrics } from "./api/metrics.js";
+import { handlerResetHits } from "./api/reset.js";
+import { handlerMetrics } from "./api/metrics.js";
 import { handlerValidateChirp } from "./api/validate_chirp.js";
 
 import postgres from "postgres";

@@ -13,12 +13,3 @@ export async function handlerMetrics(_: Request, res: Response): Promise<void> {
 </html>`;
   res.send(html);
 }
-
-export async function handlerResetHits(
-  _: Request,
-  res: Response,
-): Promise<void> {
-  config.api.fileserverHits = 0;
-  res.write("Server hits set to 0");
-  res.end();
-}
