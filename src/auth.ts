@@ -15,7 +15,7 @@ type Payload = Pick<JwtPayload, "iss" | "sub" | "iat" | "exp">;
  * makes a JWT token and returns that token
  */
 export function makeJWT(userID: string, expiresIn: number, secret: string) {
-  const date = Math.floor(Date.now() / 1000);
+  const date = Math.floor(Date.now() / 1000); // get current time in seconds
 
   const payload: Payload = {
     iss: "chirpy",
@@ -28,5 +28,6 @@ export function makeJWT(userID: string, expiresIn: number, secret: string) {
 }
 
 export function validateJWT(tokenString: string, secret: string) {
-  return jwt.verify(tokenString, secret);
+  const decoded = jwt.verify(tokenString, secret);
+  return decoded.sub;
 }
