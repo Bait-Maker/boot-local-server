@@ -22,7 +22,7 @@ export async function handlerCreateChirp(req: Request, res: Response) {
     throw new NotFoundError("Failed to create chirp");
   }
 
-  respondWithJSON(res, 201, { chirp });
+  respondWithJSON(res, 201, chirp);
 }
 
 function validateChirp(chirpBody: string) {
@@ -64,18 +64,17 @@ export async function handlerGetChirps(_: Request, res: Response) {
   respondWithJSON(res, 200, chirps);
 }
 
-type ChirpParams = { chirpId: string };
+export async function handlerGetChirpById(req: Request, res: Response) {
+  const { chirpId } = req.params;
 
-export async function handlerGetChirpById(
-  req: Request<ChirpParams>,
-  res: Response,
-) {
-  const chirpId = req.params.chirpId;
+  if (typeof chirpId !== "string") {
+    throw new BadRequestError("Invalid chirp ID");
+  }
 
   const chirp = await getChirpById(chirpId);
 
   if (!chirp) {
-    throw new NotFoundError("Chirp does not exist");
+    throw new NotFoundError(`Chirp with chirpID: ${chirpId} not found`);
   }
 
   respondWithJSON(res, 200, chirp);
