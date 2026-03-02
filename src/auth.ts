@@ -1,33 +1,71 @@
 import * as argon2 from "argon2";
 import jwt, { JwtPayload } from "jsonwebtoken";
+import { UserUnauthorizedError } from "./api/customErrors";
+
+const TOKEN_ISSUER = "chirpy";
 
 export async function hashPassword(password: string) {
   return argon2.hash(password);
 }
 
 export async function checkPasswordHash(password: string, hash: string) {
-  return argon2.verify(hash, password);
+  if (!password) return false;
+  try {
+    return await argon2.verify(hash, password);
+  } catch {
+    return false;
+  }
 }
 
 type Payload = Pick<JwtPayload, "iss" | "sub" | "iat" | "exp">;
 
 /**
- * makes a JWT token and returns that token
+ * Generates a JWT token and returns that token
+ * @param userID
+ * @param expiresIn
+ * @param secret
+ * @returns JWT Token string
  */
 export function makeJWT(userID: string, expiresIn: number, secret: string) {
-  const date = Math.floor(Date.now() / 1000); // get current time in seconds
+  const issuedAt = Math.floor(Date.now() / 1000); // get current time in seconds
+  const expiresAt = issuedAt + expiresIn;
+  const token = jwt.sign(
+    {
+      iss: TOKEN_ISSUER,
+      sub: userID,
+      iat: issuedAt,
+      exp: expiresAt,
+    } satisfies Payload,
+    secret,
+    { algorithm: "HS256" },
+  );
 
-  const payload: Payload = {
-    iss: "chirpy",
-    sub: userID,
-    iat: date,
-    exp: date + expiresIn,
-  };
-
-  return jwt.sign(payload, secret);
+  return token;
 }
 
+/**
+ *  Validates a JWT Token
+ * @param tokenString
+ * @param secret
+ * @throws UserUnauthorizedError
+ * @returns the userID (sub of the payload object)
+ */
 export function validateJWT(tokenString: string, secret: string) {
-  const decoded = jwt.verify(tokenString, secret);
+  let decoded: Payload;
+
+  try {
+    decoded = jwt.verify(tokenString, secret) as JwtPayload;
+  } catch (e) {
+    throw new UserUnauthorizedError("Invalid token");
+  }
+
+  if (decoded.iss !== TOKEN_ISSUER) {
+    throw new UserUnauthorizedError("Invalid issuer");
+  }
+
+  if (!decoded.sub) {
+    throw new UserUnauthorizedError("No user ID in token");
+  }
+
   return decoded.sub;
 }
