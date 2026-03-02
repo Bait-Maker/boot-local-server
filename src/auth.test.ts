@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeAll } from "vitest";
 import {
   checkPasswordHash,
+  getBearerToken,
   hashPassword,
   makeJWT,
   validateJWT,
@@ -49,6 +50,14 @@ describe("JWT Functions", () => {
   const wrongSecret = "wrong_secret";
   const userID = "some-unique-user-id";
   let validateToken: string;
+  const mockRequest = {
+    get: (name: string) => {
+      if (name === "Authorization") {
+        return "Bearer my-secret-token";
+      }
+      return undefined;
+    },
+  };
 
   beforeAll(() => {
     validateToken = makeJWT(userID, 36000, secret);
@@ -69,5 +78,10 @@ describe("JWT Functions", () => {
     expect(() => validateJWT(validateToken, wrongSecret)).toThrow(
       UserUnauthorizedError,
     );
+  });
+
+  it("should return the bearer token string minus the bearer", () => {
+    const result = getBearerToken(mockRequest as any);
+    expect(result).toBe("my-secret-token");
   });
 });
