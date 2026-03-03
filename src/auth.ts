@@ -1,7 +1,7 @@
 import * as argon2 from "argon2";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { Request } from "express";
-import { UserUnauthorizedError } from "./api/customErrors.js";
+import { BadRequestError, UserUnauthorizedError } from "./api/customErrors.js";
 
 const TOKEN_ISSUER = "chirpy";
 
@@ -75,10 +75,16 @@ export function getBearerToken(req: Request) {
   let token = req.get("Authorization");
 
   if (!token) {
-    throw new UserUnauthorizedError("Cannot get bearer token");
+    throw new BadRequestError("Cannot get bearer token");
   }
 
-  token = token.replace("Bearer", "").trim();
+  const tokenParts = token.split(" ");
+
+  if (tokenParts.length !== 2) {
+    throw new BadRequestError("Bearer string empty");
+  }
+
+  token = tokenParts[1];
 
   return token;
 }

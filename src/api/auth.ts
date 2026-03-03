@@ -49,9 +49,9 @@ export async function handlerLogin(req: Request, res: Response) {
     expiresIn = params.expiresIn;
   }
 
-  const token = makeJWT(user.id, expiresIn, config.api.secret);
+  const token = makeJWT(user.id, expiresIn, config.jwt.secret);
 
-  validateJWT(token, config.api.secret);
+  validateJWT(token, config.jwt.secret);
 
   respondWithJSON(res, 200, {
     id: user.id,
