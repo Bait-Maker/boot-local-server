@@ -2,7 +2,6 @@ import * as argon2 from "argon2";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { Request } from "express";
 import { BadRequestError, UserUnauthorizedError } from "./api/customErrors.js";
-
 const TOKEN_ISSUER = "chirpy";
 
 export async function hashPassword(password: string) {
@@ -22,9 +21,6 @@ type Payload = Pick<JwtPayload, "iss" | "sub" | "iat" | "exp">;
 
 /**
  * Generates a JWT token and returns that token
- * @param userID
- * @param expiresIn
- * @param secret
  * @returns JWT Token string
  */
 export function makeJWT(userID: string, expiresIn: number, secret: string) {
@@ -46,8 +42,6 @@ export function makeJWT(userID: string, expiresIn: number, secret: string) {
 
 /**
  *  Validates a JWT Token
- * @param tokenString
- * @param secret
  * @throws UserUnauthorizedError
  * @returns the userID (sub of the payload object)
  */
@@ -87,4 +81,10 @@ export function getBearerToken(req: Request) {
   token = tokenParts[1];
 
   return token;
+}
+
+export async function makeRefreshToken() {
+  const { randomBytes } = await import("node:crypto");
+
+  return randomBytes(256).toString("hex");
 }

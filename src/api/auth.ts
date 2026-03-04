@@ -1,10 +1,16 @@
 import { Request, Response } from "express";
 import { getUserByEmail } from "../db/queries/users.js";
 import { BadRequestError, UserUnauthorizedError } from "./customErrors.js";
-import { checkPasswordHash, makeJWT, validateJWT } from "../auth.js";
+import {
+  checkPasswordHash,
+  makeJWT,
+  makeRefreshToken,
+  validateJWT,
+} from "../auth.js";
 import { UserResponse } from "./users.js";
 import { respondWithJSON } from "./json.js";
 import { config } from "../config.js";
+import { createRefreshToken } from "src/db/queries/refreshTokens.js";
 
 type LoginResponse = UserResponse & {
   token: string;
@@ -47,6 +53,9 @@ export async function handlerLogin(req: Request, res: Response) {
   const accessToken = makeJWT(user.id, duration, config.jwt.secret);
 
   validateJWT(accessToken, config.jwt.secret);
+
+  // create refresh token
+  const refreshToken = await makeRefreshToken();
 
   respondWithJSON(res, 200, {
     id: user.id,
