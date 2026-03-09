@@ -86,5 +86,5 @@ export function getBearerToken(req: Request) {
 export async function makeRefreshToken() {
   const { randomBytes } = await import("node:crypto");
 
-  return randomBytes(256).toString("hex");
+  return randomBytes(32).toString("hex");
 }

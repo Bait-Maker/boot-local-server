@@ -91,6 +91,13 @@ app.post("/api/login", async (req, res, next) => {
   }
 });
 
+app.post("/api/refresh", async (req, res, next) => {
+  try {
+  } catch (err) {
+    return next(err);
+  }
+});
+
 app.use(errorMiddleware);
 
 app.listen(config.api.port, () => {
