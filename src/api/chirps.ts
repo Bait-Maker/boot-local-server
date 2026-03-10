@@ -91,6 +91,8 @@ export async function handlerGetChirpById(req: Request, res: Response) {
 export async function handlerDeleteChirp(req: Request, res: Response) {
   const { chirpId } = req.params;
 
+  getBearerToken(req);
+
   console.log(typeof chirpId);
 
   if (typeof chirpId !== "string") {
