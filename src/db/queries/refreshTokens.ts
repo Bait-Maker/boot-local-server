@@ -1,10 +1,10 @@
 import { db } from "../index.js";
 import { eq, and, isNull, gt } from "drizzle-orm";
 import { refreshTokens, users } from "../schema.js";
-import { config } from "src/config.js";
+import { config } from "../../config.js";
 
 export async function createRefreshToken(userID: string, token: string) {
-  const [result] = await db
+  const rows = await db
     .insert(refreshTokens)
     .values({
       userId: userID,
@@ -13,7 +13,7 @@ export async function createRefreshToken(userID: string, token: string) {
     })
     .returning();
 
-  return result;
+  return rows.length > 0;
 }
 
 export async function getUserByRefreshToken(token: string) {

@@ -58,8 +58,12 @@ export async function handlerLogin(req: Request, res: Response) {
   validateJWT(accessToken, config.jwt.secret);
 
   // create refresh token
-  const generatedRefreshToken = makeRefreshToken();
-  const refreshToken = await createRefreshToken(user.id, generatedRefreshToken);
+  const refreshToken = makeRefreshToken();
+  const saved = await createRefreshToken(user.id, refreshToken);
+
+  if (!saved) {
+    throw new UserUnauthorizedError("Could not save refresh token");
+  }
 
   respondWithJSON(res, 200, {
     id: user.id,
@@ -67,7 +71,7 @@ export async function handlerLogin(req: Request, res: Response) {
     updatedAt: user.updatedAt,
     email: user.email,
     token: accessToken,
-    refreshToken: refreshToken.token,
+    refreshToken: refreshToken,
   } satisfies LoginResponse);
 }
 
