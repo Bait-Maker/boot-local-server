@@ -70,7 +70,7 @@ export function getBearerToken(req: Request) {
   let token = req.get("Authorization");
 
   if (!token) {
-    throw new BadRequestError("Cannot get bearer token");
+    throw new UserUnauthorizedError("Cannot get bearer token");
   }
 
   const tokenParts = token.split(" ");

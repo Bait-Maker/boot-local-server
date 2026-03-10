@@ -12,7 +12,7 @@ import postgres from "postgres";
 import { migrate } from "drizzle-orm/postgres-js/migrator";
 import { drizzle } from "drizzle-orm/postgres-js";
 import { config } from "./config.js";
-import { handlerAddUser } from "./api/users.js";
+import { handlerAddUser, handlerUpdateUser } from "./api/users.js";
 import { handlerLogin, handlerRefresh, handlerRevoke } from "./api/auth.js";
 import {
   handlerCreateChirp,
@@ -102,6 +102,14 @@ app.post("/api/refresh", async (req, res, next) => {
 app.post("/api/revoke", async (req, res, next) => {
   try {
     await handlerRevoke(req, res);
+  } catch (err) {
+    return next(err);
+  }
+});
+
+app.put("/api/users", async (req, res, next) => {
+  try {
+    await handlerUpdateUser(req, res);
   } catch (err) {
     return next(err);
   }
