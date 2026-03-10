@@ -2,6 +2,7 @@ import * as argon2 from "argon2";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { Request } from "express";
 import { BadRequestError, UserUnauthorizedError } from "./api/customErrors.js";
+import crypto from "crypto";
 const TOKEN_ISSUER = "chirpy";
 
 export async function hashPassword(password: string) {
@@ -83,8 +84,6 @@ export function getBearerToken(req: Request) {
   return token;
 }
 
-export async function makeRefreshToken() {
-  const { randomBytes } = await import("node:crypto");
-
-  return randomBytes(32).toString("hex");
+export function makeRefreshToken() {
+  return crypto.randomBytes(32).toString("hex");
 }

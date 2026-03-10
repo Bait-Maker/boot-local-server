@@ -3,6 +3,7 @@ import { getUserByEmail } from "../db/queries/users.js";
 import { BadRequestError, UserUnauthorizedError } from "./customErrors.js";
 import {
   checkPasswordHash,
+  getBearerToken,
   makeJWT,
   makeRefreshToken,
   validateJWT,
@@ -10,7 +11,11 @@ import {
 import { UserResponse } from "./users.js";
 import { respondWithJSON } from "./json.js";
 import { config } from "../config.js";
-import { createRefreshToken } from "../db/queries/refreshTokens.js";
+import {
+  createRefreshToken,
+  getUserByRefreshToken,
+  revokeToken,
+} from "../db/queries/refreshTokens.js";
 
 type LoginResponse = UserResponse & {
   token: string;
@@ -44,25 +49,17 @@ export async function handlerLogin(req: Request, res: Response) {
     throw new UserUnauthorizedError("incorrect email or password");
   }
 
-  let duration = config.jwt.defaultDuration; // 1hr
-
-  const accessToken = makeJWT(user.id, duration, config.jwt.secret);
+  const accessToken = makeJWT(
+    user.id,
+    config.jwt.defaultDuration,
+    config.jwt.secret,
+  );
 
   validateJWT(accessToken, config.jwt.secret);
 
   // create refresh token
-  const generatedRefreshToken = await makeRefreshToken();
-  const currentDate = new Date();
-  // 1. Get the current time in milliseconds currentDate.getTime()
-  // 2. Add the duration in milliseconds (60 * days * 24 hours * 60 minutes * 60 seconds * 1000 milliseconds)
-  const expirationTimeMsec = currentDate.getTime() + 60 * 24 * 60 * 60 * 1000;
-  const expirationDate = new Date(expirationTimeMsec);
-
-  const refreshToken = await createRefreshToken({
-    userId: user.id,
-    token: generatedRefreshToken,
-    expiresAt: expirationDate,
-  });
+  const generatedRefreshToken = makeRefreshToken();
+  const refreshToken = await createRefreshToken(user.id, generatedRefreshToken);
 
   respondWithJSON(res, 200, {
     id: user.id,
@@ -72,4 +69,33 @@ export async function handlerLogin(req: Request, res: Response) {
     token: accessToken,
     refreshToken: refreshToken.token,
   } satisfies LoginResponse);
+}
+
+export async function handlerRefresh(req: Request, res: Response) {
+  const refreshToken = getBearerToken(req);
+
+  const result = await getUserByRefreshToken(refreshToken);
+
+  if (!result) {
+    throw new UserUnauthorizedError("Invalid refresh token");
+  }
+
+  const user = result.user;
+  const accessToken = makeJWT(
+    user.id,
+    config.jwt.defaultDuration,
+    config.jwt.secret,
+  );
+
+  respondWithJSON(res, 200, {
+    token: accessToken,
+  });
+}
+
+export async function handlerRevoke(req: Request, res: Response) {
+  let refreshToken = getBearerToken(req);
+
+  await revokeToken(refreshToken);
+
+  res.status(204).send();
 }
