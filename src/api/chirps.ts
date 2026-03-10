@@ -1,5 +1,10 @@
 import { Request, Response } from "express";
-import { createChirp, getChirpById, getChirps } from "../db/queries/chirps.js";
+import {
+  createChirp,
+  deleteChirp,
+  getChirpById,
+  getChirps,
+} from "../db/queries/chirps.js";
 import {
   BadRequestError,
   NotFoundError,
@@ -76,10 +81,26 @@ export async function handlerGetChirpById(req: Request, res: Response) {
   }
 
   const chirp = await getChirpById(chirpId);
-
   if (!chirp) {
     throw new NotFoundError(`Chirp with chirpID: ${chirpId} not found`);
   }
 
   respondWithJSON(res, 200, chirp);
+}
+
+export async function handlerDeleteChirp(req: Request, res: Response) {
+  const { chirpId } = req.params;
+
+  console.log(typeof chirpId);
+
+  if (typeof chirpId !== "string") {
+    throw new BadRequestError("Invalid chirp ID");
+  }
+
+  const chirp = await deleteChirp(chirpId);
+  if (!chirp) {
+    throw new NotFoundError("Could not find chirp");
+  }
+
+  res.status(204).send();
 }

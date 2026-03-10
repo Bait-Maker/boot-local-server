@@ -18,6 +18,7 @@ import {
   handlerCreateChirp,
   handlerGetChirps,
   handlerGetChirpById,
+  handlerDeleteChirp,
 } from "./api/chirps.js";
 
 const migrationClient = postgres(config.db.url, { max: 1 });
@@ -110,6 +111,14 @@ app.post("/api/revoke", async (req, res, next) => {
 app.put("/api/users", async (req, res, next) => {
   try {
     await handlerUpdateUser(req, res);
+  } catch (err) {
+    return next(err);
+  }
+});
+
+app.delete("/api/chirps/:chirpId", async (req, res, next) => {
+  try {
+    await handlerDeleteChirp(req, res);
   } catch (err) {
     return next(err);
   }
