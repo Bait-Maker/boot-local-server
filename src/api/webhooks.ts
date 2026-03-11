@@ -1,5 +1,7 @@
 import { Request, Response } from "express";
-import { upgradeUser } from "../db/queries/users";
+import { upgradeUser } from "../db/queries/users.js";
+import { getBearerToken } from "../auth.js";
+import { config } from "src/config";
 
 export async function handlerUpgradeUser(req: Request, res: Response) {
   type parameters = {
@@ -8,6 +10,13 @@ export async function handlerUpgradeUser(req: Request, res: Response) {
       userId: string;
     };
   };
+
+  const apiKey = getBearerToken(req);
+
+  if (apiKey !== config.api.polkaKey) {
+    res.status(401).send();
+    return;
+  }
 
   const params: parameters = req.body;
 
