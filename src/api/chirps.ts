@@ -8,7 +8,7 @@ import {
 import {
   BadRequestError,
   NotFoundError,
-  UserUnauthorizedError,
+  UserForbiddenError,
 } from "./customErrors.js";
 import { respondWithJSON } from "./json.js";
 import { getBearerToken, validateJWT } from "../auth.js";
@@ -91,17 +91,28 @@ export async function handlerGetChirpById(req: Request, res: Response) {
 export async function handlerDeleteChirp(req: Request, res: Response) {
   const { chirpId } = req.params;
 
-  getBearerToken(req);
-
-  console.log(typeof chirpId);
+  const accessToken = getBearerToken(req);
+  const userId = validateJWT(accessToken, config.jwt.secret);
 
   if (typeof chirpId !== "string") {
     throw new BadRequestError("Invalid chirp ID");
   }
 
-  const chirp = await deleteChirp(chirpId);
+  const chirp = await getChirpById(chirpId);
+
   if (!chirp) {
-    throw new NotFoundError("Could not find chirp");
+    throw new NotFoundError(`Chirp with chirpId: ${chirpId} not found`);
+  }
+
+  if (chirp.userId !== userId) {
+    throw new UserForbiddenError(
+      "Permission denied: you do not have necessary permission to make changes to this chirp",
+    );
+  }
+
+  const deleted = await deleteChirp(chirpId);
+  if (!deleted) {
+    throw new Error(`Failed to delete chirp with id: ${chirpId}`);
   }
 
   res.status(204).send();
