@@ -43,6 +43,13 @@
       "when": 1772652851833,
       "tag": "0005_last_cyclops",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1773257941440,
+      "tag": "0006_condemned_preak",
+      "breakpoints": true
     }
   ]
 }
