@@ -104,3 +104,7 @@ export async function handlerRevoke(req: Request, res: Response) {
 
   res.status(204).send();
 }
+
+export async function getAPIKey(req: Request) {
+  let apiKey = getBearerToken(req);
+}

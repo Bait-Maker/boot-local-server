@@ -85,3 +85,19 @@ describe("JWT Functions", () => {
     expect(result).toBe("my-secret-token");
   });
 });
+
+describe("API Key Functions", () => {
+  const mockRequest = {
+    get: (name: string) => {
+      if (name === "Authorization") {
+        return "ApiKey my-secret-api-key";
+      }
+      return undefined;
+    },
+  };
+
+  it("should return the api key string minus the ApiKey variable name", () => {
+    const result = getBearerToken(mockRequest as any);
+    expect(result).toBe("my-secret-api-key");
+  });
+});
