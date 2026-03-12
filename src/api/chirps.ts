@@ -71,7 +71,13 @@ export async function handlerGetChirps(req: Request, res: Response) {
     authorId = authorIdQuery;
   }
 
-  const chirps = await getChirps(authorId);
+  let sortOrder = "";
+  const sortOrderQuery = req.query.sort;
+  if (typeof sortOrderQuery === "string") {
+    sortOrder = sortOrderQuery;
+  }
+
+  const chirps = await getChirps(authorId, sortOrder);
 
   if (!chirps) {
     throw new BadRequestError("Unable to fetch chirps");
