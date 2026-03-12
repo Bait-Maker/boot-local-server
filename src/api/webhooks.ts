@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { upgradeUser } from "../db/queries/users.js";
 import { getBearerToken } from "../auth.js";
-import { config } from "src/config";
+import { config } from "../config.js";
 
 export async function handlerUpgradeUser(req: Request, res: Response) {
   type parameters = {

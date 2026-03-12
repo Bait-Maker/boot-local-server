@@ -64,8 +64,14 @@ function getCleanedBody(body: string, badWords: string[]) {
   return cleanedBody;
 }
 
-export async function handlerGetChirps(_: Request, res: Response) {
-  const chirps = await getChirps();
+export async function handlerGetChirps(req: Request, res: Response) {
+  let authorId = "";
+  const authorIdQuery = req.query.authorId;
+  if (typeof authorIdQuery === "string") {
+    authorId = authorIdQuery;
+  }
+
+  const chirps = await getChirps(authorId);
 
   if (!chirps) {
     throw new BadRequestError("Unable to fetch chirps");
